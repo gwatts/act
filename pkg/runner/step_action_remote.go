@@ -119,7 +119,19 @@ func (sar *stepActionRemote) main() common.Executor {
 				}
 				eval := sar.RunContext.NewExpressionEvaluator(ctx)
 				copyToPath := path.Join(sar.RunContext.JobContainer.ToContainerPath(sar.RunContext.Config.Workdir), eval.Interpolate(ctx, sar.Step.With["path"]))
-				return sar.RunContext.JobContainer.CopyDir(copyToPath, sar.RunContext.Config.Workdir+string(filepath.Separator)+".", sar.RunContext.Config.UseGitIgnore)(ctx)
+				if err := sar.RunContext.JobContainer.CopyDir(copyToPath, sar.RunContext.Config.Workdir+string(filepath.Separator)+".", sar.RunContext.Config.UseGitIgnore)(ctx); err != nil {
+					return err
+				}
+				if sar.RunContext.Config.FakeOrigin {
+					// GLW set origin in container
+					if err := sar.RunContext.JobContainer.Exec([]string{"git", "clone", "--bare", ".", "/tmp/act-fake-origin"}, nil, "0", sar.Step.WorkingDirectory)(ctx); err != nil {
+						return err
+					}
+					if err := sar.RunContext.JobContainer.Exec([]string{"git", "remote", "set-url", "origin", "/tmp/act-fake-origin"}, nil, "0", sar.Step.WorkingDirectory)(ctx); err != nil {
+						return err
+					}
+				}
+				return nil
 			}
 
 			actionDir := fmt.Sprintf("%s/%s", sar.RunContext.ActionCacheDir(), strings.ReplaceAll(sar.Step.Uses, "/", "-"))

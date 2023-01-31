@@ -46,6 +46,7 @@ func Execute(ctx context.Context, version string) {
 	rootCmd.Flags().BoolP("bug-report", "", false, "Display system information for bug report")
 
 	rootCmd.Flags().StringVar(&input.remoteName, "remote-name", "origin", "git remote name that will be used to retrieve url of git repo")
+	rootCmd.Flags().BoolVarP(&input.fakeOrigin, "fake-origin", "", false, "Use a local fake origin instead of the original remote")
 	rootCmd.Flags().StringArrayVarP(&input.secrets, "secret", "s", []string{}, "secret to make available to actions with optional value (e.g. -s mysecret=foo or -s mysecret)")
 	rootCmd.Flags().StringArrayVarP(&input.envs, "env", "", []string{}, "env to make available to actions with optional value (e.g. --env myenv=foo or --env myenv)")
 	rootCmd.Flags().StringArrayVarP(&input.inputs, "input", "", []string{}, "action input to make available to actions (e.g. --input myinput=foo)")
@@ -487,6 +488,7 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 			ArtifactServerPort:                 input.artifactServerPort,
 			NoSkipCheckout:                     input.noSkipCheckout,
 			RemoteName:                         input.remoteName,
+			FakeOrigin:                         input.fakeOrigin,
 			ReplaceGheActionWithGithubCom:      input.replaceGheActionWithGithubCom,
 			ReplaceGheActionTokenWithGithubCom: input.replaceGheActionTokenWithGithubCom,
 		}

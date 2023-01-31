@@ -45,6 +45,7 @@ type Input struct {
 	jsonLogger                         bool
 	noSkipCheckout                     bool
 	remoteName                         string
+	fakeOrigin                         bool
 	replaceGheActionWithGithubCom      []string
 	replaceGheActionTokenWithGithubCom string
 }
